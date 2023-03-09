@@ -1,0 +1,92 @@
+import pygame
+import sys
+
+pygame.init()
+
+font = pygame.font.SysFont(None, 100)
+screenwidth = 300
+screenheight = 300
+screen = pygame.display.set_mode((screenwidth, screenheight))
+
+black = (0, 0, 0)
+white = (255, 255, 255)
+
+pygame.display.set_caption("Tic Tac Toe")
+
+board = [    [" ", " ", " "],
+    [" ", " ", " "],
+    [" ", " ", " "]
+]
+
+def drawboard():
+    for row in range(1, 3):
+        pygame.draw.line(screen, black, (0, row * screenheight // 3), (screenwidth, row * screenheight // 3))
+        pygame.draw.line(screen, black, (row * screenwidth // 3, 0), (row * screenwidth // 3, screenheight))
+    
+    for row in range(3):
+        for col in range(3):
+            x = row * screenwidth // 3
+            y = col * screenheight // 3
+            if board[row][col] == "X":
+                Xtext = font.render("X", True, black)
+                screen.blit(Xtext, (x + screenwidth // 6 - Xtext.get_width() // 2, y + screenheight // 6 - Xtext.get_height() // 2))
+            elif board[row][col] == "O":
+                Otext = font.render("O", True, black)
+                screen.blit(Otext, (x + screenwidth // 6 - Otext.get_width() // 2, y + screenheight // 6 - Otext.get_height() // 2))
+
+def checkwin(player):
+    for row in range(3):
+        if board[row][0] == board[row][1] == board[row][2] == player:
+            return True
+    for col in range(3):
+        if board[0][col] == board[1][col] == board[2][col] == player:
+            return True
+    if board[0][0] == player and board[1][1] == player and board[2][2] == player:
+        return True
+    if board[0][2] == player and board[1][1] == player and board[2][0] == player:
+        return True
+    return False
+
+def checktie():
+    for row in range(3):
+        for col in range(3):
+            if board[row][col] == "":
+                return False
+    return True
+     
+playerone = "X"
+playertwo = "O"
+currentplayer = playerone
+
+gameover = False
+while not gameover:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        if event.type == pygame.MOUSEBUTTONUP:
+            mousepos = pygame.mouse.get_pos()
+            cellx = mousepos[0] // (screenwidth // 3)
+            celly = mousepos[1] // (screenheight // 3)
+            if board[cellx][celly] == "":
+                board[cellx][celly] = currentplayer
+                if checkwin(currentplayer):
+                    screen.fill(white)
+                    wintext = font.render(currentplayer + " WINS!", True, black)
+                    screen.blit(wintext, ((screenwidth - wintext.get_width()) // 2, (screenheight - wintext.get_height()) // 2))
+                    pygame.display.update()
+                    pygame.time.delay(3000)
+                    gameover = True
+                elif checktie():
+                    screen.fill(white)
+                    tietext = font.render("TIE", True, black)
+                    screen.blit(tietext, ((screenwidth - tietext.get_width()) // 2, (screenheight - tietext.get_height()) // 2))
+                    pygame.display.update()
+                    pygame.time.delay(3000)
+                    gameover = True
+                else:
+                    currentplayer = playertwo if currentplayer == playerone else playerone
+    screen.fill(white)
+    drawboard()
+    pygame.display.update()  
+    pygame.time.delay(100)
